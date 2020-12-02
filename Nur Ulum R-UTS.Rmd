@@ -1,0 +1,64 @@
+---
+title: "UTS"
+author: "Nur Ulum Rahmanulloh"
+date: "12/3/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(readxl)
+X2014_and_2015_CSM_dataset <- read_excel("C:/Users/LENOVO/Downloads/2014 and 2015 CSM dataset.xlsx")
+```
+
+```{r}
+sum(is.na(X2014_and_2015_CSM_dataset))
+```
+
+```{r}
+dataUTS <- na.omit(X2014_and_2015_CSM_dataset)
+dataUTS$lev_rating <- cut(as.numeric(dataUTS$Ratings), breaks = c(0, 6, 7.5, 10), labels = c("rendah", "sedang", "tinggi"))
+dataUTS <- dataUTS[, 4 : 15]
+```
+
+```{r message=FALSE, warning=FALSE}
+library(rpart, quietly = TRUE)
+library(caret, quietly = TRUE)
+library(rpart.plot, quietly = TRUE)
+library(rattle)
+train <- sample(1 : nrow(dataUTS), size = 0.8 * nrow(dataUTS))
+UTS_train <- dataUTS[train, ]
+UTS_test <- dataUTS[-train, ]
+treeFit <- rpart(lev_rating~., data = UTS_train, method = "class")
+rpart.plot(treeFit)
+```
+
+```{r}
+test_model <- predict(treeFit, UTS_test, type = "class")
+table(UTS_test$lev_rating, test_model)
+```
+
+```{r}
+sensitivity(UTS_test$lev_rating, test_model)
+```
+```{r}
+recall(UTS_test$lev_rating, test_model)
+```
+
+```{r}
+precision(UTS_test$lev_rating, test_model)
+```
+```{r}
+F1_Score(UTS_test$lev_rating, test_model)
+```
+
+
+
+
+
+
+
+
